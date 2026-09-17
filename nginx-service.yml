@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: incident-nginx-service
+spec:
+  type: NodePort # Делаем сервис доступным снаружи Minikube
+  selector:
+    app: nginx-gateway # 👈 По этому лейблу Сервис найдет наши 3 пода
+  ports:
+    - port: 80           # Порт самого Сервиса
+      targetPort: 80     # Порт внутри контейнера Nginx
+      nodePort: 30080    # Внешний порт на хосте (от 30000 до 32767)

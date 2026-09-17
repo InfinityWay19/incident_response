@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: incident-nginx-html
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>K8s ConfigMap</title>
+      </head>
+      <body style="background-color: #282c34; color: white; text-align: center; padding: 50px; font-family: sans-serif;">
+        <h1>🚀 Kubernetes Nginx Gateway работает!</h1>
+        <p>Эта страница проброшена из K8s ConfigMap.</p>
+      </body>
+    </html>

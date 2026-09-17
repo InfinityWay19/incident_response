@@ -1,0 +1,19 @@
+groups:
+  - name: security_alerts
+    rules:
+      - alert: HighRateLimitDrops
+        expr: rate(container_network_receive_bytes_total{name="incident_gateway"}[1m]) > 10000
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Обнаружена атака или аномальный спам"
+          description: "Nginx активно блокирует запросы (статус 503). Возможно, работает сканер уязвимостей или идет DDoS."
+      - alert: BackendServiceDown
+        expr: up{job="docker-containers"} == 0
+        for: 15s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Сервис сбора метрик или контейнер недоступен"
+          description: "Один из таргетов мониторинга перестал отвечать. Возможен краш контейнера."

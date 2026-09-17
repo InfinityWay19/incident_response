@@ -1,0 +1,74 @@
+name: incident response ci pipeline
+
+on:
+    push:
+        branches: [ main, master ]
+    pull_request:
+        branches: [ main, master ]
+
+jobs:
+    backend-ci:
+        runs-on: ubuntu-latest
+        steps:
+            # Шаг 1: Скачиваем код из репозитория
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            # Шаг 2: Настраиваем Node.js
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: 20
+
+            # Шаг 3: Настраиваем pnpm
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v3
+              with:
+                version: 10
+
+            # Шаг 4: Устанавливаем зависимости бэкенда
+            - name: Install Backend Dependencies
+              run: |
+                cd backend
+                pnpm install
+
+            - name: Generate prisma client
+              run: |
+                cd backend
+                pnpm exec prisma generate
+
+            # Шаг 5: Проверяем компиляцию TypeScript
+            - name: Build NestJS App
+              run: |
+                cd backend
+                pnpm run build
+
+            # Шаг 6: Проверяем сборку Dockerfile для бэкенда
+            - name: Test Docker Build (Backend)
+              run: |
+                docker build -t incident-backend:ci ./backend
+
+    frontend-ci:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: node
+              uses: actions/setup-node@v4
+              with:
+                node-version: 20
+
+            - name: pnpm
+              uses: pnpm/action-setup@v3
+              with:
+                version: 10
+
+            - name: front
+              run: |
+                cd frontend
+                pnpm install
+
+            - name: docker
+              run: |
+                docker build -t incident-frontend:ci ./frontend
