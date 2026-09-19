@@ -3,7 +3,6 @@ kind: Service
 metadata:
   name: incident-nginx-service
 spec:
-  type: NodePort # Делаем сервис доступным снаружи Minikube
   selector:
     app: nginx-gateway # 👈 По этому лейблу Сервис найдет наши 3 пода
   ports:
