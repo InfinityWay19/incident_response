@@ -31,14 +31,11 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ./backend
-          # Если ваш Dockerfile бэкенда лежит в корне проекта, оставьте "."
-          # Если он лежит, например, в папке backend, замените на: context: ./backend
-          file: Dockerfile
           push: true
           # Замените 'username' на ваш реальный логин в Docker Hub, а 'backend-repo' на имя вашего репозитория там
           tags: |
-            username/backend-repo:latest
-            username/backend-repo:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_LOGIN }}/incident_response:latest
+            ${{ secrets.DOCKERHUB_LOGIN }}/incident_response:${{ github.sha }}
       - name: Update Helm Values
         run: |
             sed -i "s/tag: .*/tag: \"${{ github.sha }}\"/" incident-chart/values.yaml
