@@ -36,6 +36,9 @@ jobs:
               run: |
                 cd backend
                 pnpm exec prisma generate
+              env:
+                DATABASE_URL: "postgresql://perfect_user:SuperStupid@postgres-db-service:5432/incident_response_db?schema=public"
+
 
             # Шаг 5: Проверяем компиляцию TypeScript
             - name: Build NestJS App
