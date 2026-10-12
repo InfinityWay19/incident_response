@@ -1,4 +1,4 @@
 backend:
   image: "incident-backend"
-  tag: "v5"
+  tag: "0082792ca34cdc5f2522aed71a4c7335280b5f4f"
   replicas: 4
