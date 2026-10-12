@@ -6,7 +6,7 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
 RUN pnpm exec prisma generate
-RUN pnpm run build
+RUN pnpm run build && ls -la
 FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
