@@ -7,7 +7,7 @@ COPY . .
 ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
 RUN pnpm exec prisma generate
 RUN pnpm run build
-FROM node:22-alpine AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && corepack prepare --activate
