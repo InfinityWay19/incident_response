@@ -30,10 +30,10 @@ jobs:
       - name: Build and push Backend image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./backend
           # Если ваш Dockerfile бэкенда лежит в корне проекта, оставьте "."
           # Если он лежит, например, в папке backend, замените на: context: ./backend
-          file: ./Dockerfile
+          file: Dockerfile
           push: true
           # Замените 'username' на ваш реальный логин в Docker Hub, а 'backend-repo' на имя вашего репозитория там
           tags: |
