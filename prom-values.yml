@@ -1,0 +1,45 @@
+alertmanager:
+  config:
+    route:
+      group_by: ['alertname']
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 1h
+      receiver: 'slack_oncall'
+
+    receivers:
+      - name: 'slack_oncall'
+        slack_configs:
+          - api_url: 'https://youtu.be/dQw4w9WgXcQ?si=IujwdA6saShM2a8m'
+            channel: '#alerts'
+            send_resolved: true
+            title: |-
+              [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}] {{ .GroupLabels.alertname }}
+            text: >-
+              {{ range .Alerts -}}
+              *Описание:* {{ .Annotations.description }}
+              *Детали:* `{{ .Labels }}`
+              {{ end }}
+
+
+serverFiles:
+  alerting_rules.yml:
+    groups:
+    - name: security_alerts
+      rules:
+        - alert: HighRateLimitDrops
+          expr: rate(container_network_receive_bytes_total{name="incident_gateway"}[1m]) > 10000
+          for: 30s
+          labels:
+            severity: critical
+          annotations:
+            summary: "Обнаружена атака или аномальный спам"
+            description: "Nginx активно блокирует запросы (статус 503). Возможно, работает сканер уязвимостей или идет DDoS."
+        - alert: BackendServiceDown
+          expr: up{job="docker-containers"} == 0
+          for: 15s
+          labels:
+            severity: critical
+          annotations:
+            summary: "Сервис сбора метрик или контейнер недоступен"
+            description: "Один из таргетов мониторинга перестал отвечать. Возможен краш контейнера."

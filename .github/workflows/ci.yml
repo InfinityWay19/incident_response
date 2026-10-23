@@ -1,77 +1,127 @@
 name: incident response ci pipeline
 
 on:
-    push:
-        branches: [ main, master ]
-    pull_request:
-        branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
-    backend-ci:
-        runs-on: ubuntu-latest
-        steps:
-            # Шаг 1: Скачиваем код из репозитория
-            - name: Checkout repository
-              uses: actions/checkout@v4
+  # === Квалификационный этап  Backend ===
+  backend-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            # Шаг 2: Настраиваем Node.js
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                node-version: 20
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
 
-            # Шаг 3: Настраиваем pnpm
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v3
-              with:
-                version: 10
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: backend/pnpm-lock.yaml 
 
-            # Шаг 4: Устанавливаем зависимости бэкенда
-            - name: Install Backend Dependencies
-              run: |
-                cd backend
-                pnpm install
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          pnpm install --frozen-lockfile
 
-            - name: Generate prisma client
-              run: |
-                cd backend
-                pnpm exec prisma generate
-              env:
-                DATABASE_URL: "postgresql://perfect_user:SuperStupid@postgres-db-service:5432/incident_response_db?schema=public"
+      # QUALITY GATE: линтер и тесты
+      - name: Run Backend Linter
+        run: |
+          cd backend
+          pnpm run lint
 
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          pnpm test
 
-            # Шаг 5: Проверяем компиляцию TypeScript
-            - name: Build NestJS App
-              run: |
-                cd backend
-                pnpm run build
+      - name: Generate prisma client
+        run: |
+          cd backend
+          pnpm exec prisma generate
+        env:
+          DATABASE_URL: "postgresql://perfect_user:SuperStupid@postgres-db-service:5432/incident_response_db?schema=public"
 
-            # Шаг 6: Проверяем сборку Dockerfile для бэкенда
-            - name: Test Docker Build (Backend)
-              run: |
-                docker build -t incident-backend:ci ./backend
+      - name: Build NestJS App
+        run: |
+          cd backend
+          pnpm run build
 
-    frontend-ci:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-            - name: node
-              uses: actions/setup-node@v4
-              with:
-                node-version: 20
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-            - name: pnpm
-              uses: pnpm/action-setup@v3
-              with:
-                version: 10
+      - name: Build and Push Docker Image (Backend)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/incident-backend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-            - name: front
-              run: |
-                cd frontend
-                pnpm install
+  frontend-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: docker
-              run: |
-                docker build -t incident-frontend:ci ./frontend
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          pnpm install --frozen-lockfile
+
+      # QUALITY GATE: Линтер и Тесты
+      - name: Run Frontend Linter
+        run: |
+          cd frontend
+          pnpm run lint
+
+      - name: Run Frontend Tests
+        run: |
+          cd frontend
+          pnpm test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image (Frontend)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/incident-frontend:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
