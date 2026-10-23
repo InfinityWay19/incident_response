@@ -1,14 +1,4 @@
 backend:
-<<<<<<< HEAD
-<<<<<<< HEAD
-  image: "incident-backend"
-  tag: "fe814071b438ef6c5645f8a7802d1d6fffd5ddb9"
-=======
   image: "onlyinfy/incident-backend"
   tag: "fe814071b438ef6c5645f8a7802d1d6fffd5ddb9"
->>>>>>> a9f47d7 (.)
-=======
-  image: "onlyinfy/incident-backend"
-  tag: "fe814071b438ef6c5645f8a7802d1d6fffd5ddb9"
->>>>>>> 40492fd (...)
   replicas: 4
