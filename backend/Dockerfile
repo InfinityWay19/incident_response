@@ -20,4 +20,4 @@ RUN pnpm exec prisma generate
 RUN chown -R node:node /app
 USER node
 EXPOSE 3000
-CMD [ "node", "dist/src/main.js" ]
+CMD [ "node", "dist/main.js" ]
