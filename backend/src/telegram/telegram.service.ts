@@ -8,7 +8,7 @@ export class TelegramService {
     private bot: Telegraf;
     constructor(private configService: ConfigService) {
         const token = this.configService.getOrThrow("TELEGRAM_BOT_TOKEN");
-        this.chatId = this.configService.getOrThrow("TELEGTAM_CHAT_ID");
+        this.chatId = this.configService.getOrThrow("TELEGRAM_CHAT_ID");
         this.bot = new Telegraf(token);
     }
     async sendIncidentAlert(incident: {id: number; service: string; errorLog: string;}) {

@@ -34,7 +34,7 @@ spec:
           value: "postgresql://incident_user:SuperStrongPassword123!@postgres-db-service:5432/incident_response_db?schema=public"
         - name: TELEGRAM_BOT_TOKEN
           value: "8768110429:AAEdAJLiHyMzJqGraWIVKblE2Cq6HarqKfo"
-        - name: TELEGTAM_CHAT_ID
+        - name: TELEGRAM_CHAT_ID
           value: "-1003941335705"
         - name: NODE_ENV
           valueFrom:

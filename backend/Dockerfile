@@ -13,7 +13,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && corepack prepare --activate
 RUN pnpm install --frozen-lockfile -P
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/src ./dist
+COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 ENV DATABASE_URL="postgresql://user:pass@localhost:5432/db"
 RUN pnpm exec prisma generate
