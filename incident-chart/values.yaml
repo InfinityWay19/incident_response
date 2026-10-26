@@ -1,4 +1,4 @@
 backend:
   image: "onlyinfy/incident_response"
-  tag: "07fa5f167186aa5a0311567f99a194e22acb0c02"
+  tag: "0894bb21914327d8d6ab980d7d8b986405b604d3"
   replicas: 4
