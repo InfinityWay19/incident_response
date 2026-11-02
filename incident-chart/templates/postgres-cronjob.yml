@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pg-backup
+spec:
+  schedule: "0 3 * * *" # Запуск каждый день в 3:00 ночи
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: postgres:15-alpine
+              command:
+                - /bin/sh
+                - -c
+                - >
+                  pg_dump -h postgres-db-service -U incident_user -d incident_response_db > /tmp/backup_$(date +%F).sql &&
+                  echo "Backup completed successfully!"
+              env:
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: app-secrets
+                      key: DB_PASSWORD
+          restartPolicy: OnFailure
